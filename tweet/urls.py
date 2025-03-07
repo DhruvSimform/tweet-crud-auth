@@ -24,5 +24,10 @@ from . import views
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
-    path('',views.index , name='index'),
+    path('',views.tweet_list , name='tweet_list'),
+    path('tweet/delete/<int:id>',views.tweet_delete , name='tweet_delete'),
+    path('tweet/create/',views.tweet_create , name='tweet_create'),
+    path('tweet/update/<int:id>',views.tweet_edit , name='tweet_edit'),
+    path('tweet/<int:id>',views.tweet_list , name='tweet_detail'),
+
 ] 
