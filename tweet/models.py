@@ -12,3 +12,5 @@ class Tweet(models.Model):
         return f"{self.user.username}: {self.text[:10]}"
 
 # Create your models here.
+
+ 
