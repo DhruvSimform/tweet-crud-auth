@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Tweet
 from .forms import TweetForm
 from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
 # Create your views here.
 
 def index(request):
@@ -19,9 +20,10 @@ def tweet_create(request):
             tweet = form.save(commit=False)
             tweet.user = request.user
             tweet.save()
-
-            redirect('tweet_list')
+            messages.success(request, 'Tweet created successfully')
+            return redirect('tweet_list')
         else:
+            messages.error(request, 'Error creating tweet')
             pass
     else:
         form = TweetForm()
@@ -36,10 +38,12 @@ def tweet_edit(request, tweet_id):
             tweet = form.save(commit=False)
             tweet.user = request.user
             tweet.save()
+            messages.success(request, "Tweet updated successfully")
             return redirect('tweet_list')
         
     else:
         form = TweetForm(instance=tweet)
+        
     return render(request, "tweet_form.html", {'form': form})
 
 def tweet_delete(request, tweet_id):
@@ -47,5 +51,6 @@ def tweet_delete(request, tweet_id):
 
     if request.method == 'POST':
         tweet.delete()
+        messages.success(request, "Tweet deleted successfully")
         return redirect('tweet_list')
     return render(request,"tweet_confirm_delete.html", {'tweet': tweet})
