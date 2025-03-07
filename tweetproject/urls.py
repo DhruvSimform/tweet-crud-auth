@@ -24,4 +24,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('tweet/',include('tweet.urls')),
-] + static(settings.MEDIA_URL ,documen_root=settings.MEDIA_ROOT)
+] 
+# Only serve media files in DEBUG mode
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
