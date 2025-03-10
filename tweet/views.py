@@ -14,17 +14,19 @@ def index(request):
 
 def tweet_list(request):
     query = request.GET.get('q') or ''
+    suggestions = []
     if query:
         tweets = Tweet.objects.filter(text__icontains=query)| Tweet.objects.filter(user__username__icontains=query)
-        print(Tweet.objects.filter(user__username__icontains=query).query)
+        suggestions = tweets.values_list("text", flat=True)  # Extract only text
+        print(suggestions)
     else:
         tweets = Tweet.objects.all() 
-    return render(request, 'tweet_list.html', {'tweets': tweets})
+    return render(request, 'tweet_list.html', {'tweets': tweets ,"suggestions": suggestions})
 
 def my_tweets(request):
     query = request.GET.get('q') or ''
     tweets = Tweet.objects.filter(user=request.user) & Tweet.objects.filter(text__icontains=query)
-    return render(request, 'tweet_list.html', {'tweets': tweets})
+    return render(request, 'tweet_list.html', {'tweets': tweets,})
 
 @login_required
 def tweet_create(request):

@@ -1,0 +1,6 @@
+{
+    "buildCommand": "./build_files.sh",
+    "outputDirectory": "staticfiles",
+    "framework": null
+  }
+  
