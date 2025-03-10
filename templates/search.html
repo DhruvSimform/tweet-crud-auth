@@ -1,0 +1,4 @@
+<form method="GET" action="{% url 'tweet_list' %}" class="mb-4">
+    <input type="text" name="q" placeholder="Search tweets..." value="{{ request.GET.q|default:'' }}" class="border px-3 py-2 rounded">
+    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
+</form>

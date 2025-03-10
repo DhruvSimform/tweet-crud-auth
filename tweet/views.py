@@ -13,11 +13,17 @@ def index(request):
     return render(request,"index.html")
 
 def tweet_list(request):
-    tweets = Tweet.objects.all().order_by('-created_at')
+    query = request.GET.get('q') or ''
+    if query:
+        tweets = Tweet.objects.filter(text__icontains=query)| Tweet.objects.filter(user__username__icontains=query)
+        print(Tweet.objects.filter(user__username__icontains=query).query)
+    else:
+        tweets = Tweet.objects.all() 
     return render(request, 'tweet_list.html', {'tweets': tweets})
 
 def my_tweets(request):
-    tweets = Tweet.objects.filter(user=request.user).order_by('-created_at')
+    query = request.GET.get('q') or ''
+    tweets = Tweet.objects.filter(user=request.user) & Tweet.objects.filter(text__icontains=query)
     return render(request, 'tweet_list.html', {'tweets': tweets})
 
 @login_required
