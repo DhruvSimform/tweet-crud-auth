@@ -69,7 +69,8 @@
 
         <li>
           <!-- Search Form with Button -->
-        
+          <!-- Search Form with Button -->
+          {% if request.resolver_match.url_name == "tweet_list" or request.resolver_match.url_name == "my_tweets" %}
           <form action="{{ request.path }}" method="GET" class="flex">
             <input type="text" name="q" placeholder="Search..." 
               class="px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600" value="{{ request.GET.q|default:'' }}" autocomplete="off">
@@ -77,6 +78,7 @@
               🔍
             </button>
           </form>
+          {% endif %}
         </li>
         {% endif %}
       </ul>

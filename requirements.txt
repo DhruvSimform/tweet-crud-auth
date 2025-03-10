@@ -4,5 +4,7 @@ crispy-tailwind==1.0.3
 Django==4.2.20
 django-crispy-forms==2.3
 pillow==10.4.0
+psycopg==3.2.5
+python-dotenv==1.0.1
 sqlparse==0.5.3
 typing-extensions==4.12.2
