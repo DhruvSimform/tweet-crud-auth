@@ -73,6 +73,8 @@ def register(request):
             user.save()
 
             login(request,user)
+            messages.success(request, "Registration successful")
+            messages.success(request, "Welcome to TweetApp , you are now logged in")
             return redirect('tweet_list')
  
 
