@@ -7,12 +7,13 @@
 <div class="container mx-auto px-4 py-6">
     
     <!-- Create Tweet Button -->
-    <div class="flex justify-center mb-6">
-        <a class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" 
-           href="{% url 'tweet_create' %}">
-            + Create a Tweet
-        </a>
-    </div>
+<div id="tweetButtonContainer" class="flex justify-center mb-6 transition-all duration-300">
+    <a id="tweetButton" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 shadow-lg" 
+       href="{% url 'tweet_create' %}">
+        + Create a Tweet
+    </a>
+</div>
+
 
     <!-- Tweets Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -55,3 +56,9 @@
 </div>
 
 {% endblock content %}
+
+
+{% block script %}
+
+
+{% endblock script %}

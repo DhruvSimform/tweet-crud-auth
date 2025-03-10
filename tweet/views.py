@@ -16,6 +16,10 @@ def tweet_list(request):
     tweets = Tweet.objects.all().order_by('-created_at')
     return render(request, 'tweet_list.html', {'tweets': tweets})
 
+def my_tweets(request):
+    tweets = Tweet.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'tweet_list.html', {'tweets': tweets})
+
 @login_required
 def tweet_create(request):
     if request.method == 'POST':
@@ -75,7 +79,8 @@ def register(request):
             login(request,user)
             messages.success(request, "Registration successful")
             messages.success(request, "Welcome to TweetApp , you are now logged in")
-            return redirect('tweet_list')
+            next_url = request.GET.get('next') or request.POST.get('next') or 'tweet_list'  # Default to home if next is missing
+            return redirect(next_url)
  
 
     else:
