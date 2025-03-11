@@ -22,29 +22,34 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 import json
 from .models import Tweet
+from django.core.paginator import Paginator
+from django.http import JsonResponse
 
 def tweet_list(request):
-    query = request.GET.get('q', '')
+    tweets = Tweet.objects.all().order_by('-created_at')  # Order by latest
 
-    if query:
-        tweets = (Tweet.objects.filter(text__icontains=query) | 
-                  Tweet.objects.filter(user__username__icontains=query)).order_by('-created_at')
-    else:
-        tweets = Tweet.objects.all().order_by('-created_at')
+    # Handle AJAX request for pagination
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        page_number = request.GET.get('page', 1)
+        paginator = Paginator(tweets, 10)  # Show 5 tweets per page
 
-    # Convert to JSON-safe format
-    tweet_data = [
-        {
-            'id': tweet.id,
-            'user': tweet.user.username,
-            'text': tweet.text,
-            'photo': tweet.photo.url if tweet.photo else '',
-            'created_at': tweet.created_at.strftime('%Y-%m-%d %H:%M'),
-        }
-        for tweet in tweets
-    ]
+        try:
+            page = paginator.page(page_number)
+        except:
+            return JsonResponse({'tweets': []})  # No more tweets
 
-    return render(request, 'tweet_list.html', {'tweets_json': mark_safe(json.dumps(tweet_data))})
+        tweets_data = [
+            {
+                "id": tweet.id,
+                "text": tweet.text,
+                "username": tweet.user.username,
+                "photo": tweet.photo.url if tweet.photo else None
+            }
+            for tweet in page.object_list
+        ]
+        return JsonResponse({'tweets': tweets_data})
+
+    return render(request, "tweet_list.html", {'tweets': tweets[:30]})  # Load first 5 initially
 
 
 
