@@ -15,18 +15,21 @@ def index(request):
 def tweet_list(request):
     query = request.GET.get('q') or ''
     suggestions = []
+    
     if query:
-        tweets = Tweet.objects.filter(text__icontains=query)| Tweet.objects.filter(user__username__icontains=query)
+        tweets = (Tweet.objects.filter(text__icontains=query) | 
+                  Tweet.objects.filter(user__username__icontains=query)).order_by('-created_at')
         suggestions = tweets.values_list("text", flat=True)  # Extract only text
         print(suggestions)
     else:
-        tweets = Tweet.objects.all() 
-    return render(request, 'tweet_list.html', {'tweets': tweets ,"suggestions": suggestions})
+        tweets = Tweet.objects.all().order_by('-created_at')  # Ensure ordering even for all tweets
+
+    return render(request, 'tweet_list.html', {'tweets': tweets, 'suggestions': suggestions})
 
 @login_required
 def my_tweets(request):
     query = request.GET.get('q') or ''
-    tweets = Tweet.objects.filter(user=request.user) & Tweet.objects.filter(text__icontains=query)
+    tweets = Tweet.objects.filter(user=request.user) & Tweet.objects.filter(text__icontains=query).order_by('-created_at')
     return render(request, 'tweet_list.html', {'tweets': tweets,})
 
 @login_required
