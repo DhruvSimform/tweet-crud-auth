@@ -1,2 +1,5 @@
 env/
 .env
+
+# Root@123
+mkdir -p tweet/management/commands

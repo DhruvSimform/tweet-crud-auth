@@ -23,6 +23,7 @@ def tweet_list(request):
         tweets = Tweet.objects.all() 
     return render(request, 'tweet_list.html', {'tweets': tweets ,"suggestions": suggestions})
 
+@login_required
 def my_tweets(request):
     query = request.GET.get('q') or ''
     tweets = Tweet.objects.filter(user=request.user) & Tweet.objects.filter(text__icontains=query)
