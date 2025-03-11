@@ -3,8 +3,14 @@ backports.zoneinfo==0.2.1
 crispy-tailwind==1.0.3
 Django==4.2.20
 django-crispy-forms==2.3
+Faker==35.2.2
+neo4j==5.28.1
+neomodel==5.4.1
 pillow==10.4.0
 psycopg==3.2.5
+python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
+pytz==2025.1
+six==1.17.0
 sqlparse==0.5.3
 typing-extensions==4.12.2
