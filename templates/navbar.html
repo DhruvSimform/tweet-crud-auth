@@ -45,9 +45,9 @@
 
     <div class="hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
       <ul class="flex flex-col md:flex-row md:space-x-8 p-4 md:p-0 bg-gray-50 md:bg-transparent dark:bg-gray-800 md:dark:bg-transparent">
-        <li><a href="{% url 'tweet_list' %}" class="block py-2 px-3 text-gray-900 dark:text-white">Home</a></li>
+        <li><a href="{% url 'tweet_list' %}" class="{% active 'tweet_list' %} block py-2 px-3 text-gray-900 dark:text-white">Home</a></li>
         {% if user.is_authenticated %}
-        <li><a href="{% url 'my_tweets' %}" class="block py-2 px-3 text-gray-900 dark:text-white">My tweets</a></li>
+        <li><a href="{% url 'my_tweets' %}" class="{% active 'my_tweets' %} block py-2 px-3 text-gray-900 dark:text-white">My tweets</a></li>
         <li>
           {% if request.resolver_match.url_name == "tweet_list" or request.resolver_match.url_name == "my_tweets" %}
           <form action="{{ request.path }}" method="GET" class="flex flex-wrap gap-2">

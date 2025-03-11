@@ -99,12 +99,13 @@
     function addTweetToDOM(tweet, currentUser, prepend = false) {
         let editDeleteButtons = "";
         let deleteUrl = `{% url 'tweet_delete' 99999 %}`.replace("99999", tweet.id);
+        let editUrl = `{% url 'tweet_edit' 99999 %}`.replace("99999", tweet.id);
         
         // Only show edit & delete if the logged-in user owns the tweet
         if (tweet.username === currentUser) {
             editDeleteButtons = `
                 <div class="flex justify-start space-x-3 mt-3">
-                    <a href="/tweet/edit/${tweet.id}" 
+                    <a href="${editUrl}" 
                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600">
                         ✏ Edit
                     </a>
