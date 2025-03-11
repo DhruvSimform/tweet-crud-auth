@@ -5,6 +5,10 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+from .neo_models import UserNode
 
 # Create your views here.
 
@@ -151,3 +155,22 @@ def register(request):
     else:
         form = UserRegistrationForm()
     return render(request,"registration/register.html", {'form': form})    
+
+
+
+@login_required
+def follow_user(request, username):
+    """Allow the logged-in user to follow another user."""
+    try:
+        logged_in_user = UserNode.nodes.get(username=request.user.username)
+        target_user = UserNode.nodes.get(username=username)
+
+        # Check if already following
+        if target_user not in logged_in_user.follows:
+            logged_in_user.follows.connect(target_user)
+            return JsonResponse({'status': 'success', 'message': f'You are now following {username}.'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'You are already following this user.'})
+
+    except UserNode.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'User not found.'})

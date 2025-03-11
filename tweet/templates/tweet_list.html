@@ -23,7 +23,9 @@
                 <img class="w-full h-48 object-cover" src="{{ tweet.photo.url }}" alt="Tweet Image">
                 {% endif %}
                 
-                <h5 class="text-xl font-semibold text-gray-900 dark:text-white">{{ tweet.user.username }}</h5>
+                <h5 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    <a href="#" class="follow-link text-blue-500 hover:underline" data-username="{{ tweet.user.username }}">{{ tweet.user.username }}</a>
+                </h5>
                 <p class="text-gray-700 dark:text-gray-300">{{ tweet.text|default:"No content available" }}</p>
 
                 <!-- Edit & Delete Buttons -->
@@ -133,5 +135,19 @@
     }
 
     window.addEventListener("scroll", handleScroll);
+</script>
+<script>
+    document.querySelectorAll('.follow-link').forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            let username = this.getAttribute('data-username');
+            if (confirm(`Would you like to follow ${username}?`)) {
+                fetch(`follow/${username}/`, { method: 'GET' })
+                .then(response => response.json())
+                .then(data => alert(data.message))
+                .catch(error => console.error('Error:', error));
+            }
+        });
+    });
 </script>
 {% endblock script %}

@@ -12,8 +12,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
-# from neomodel import config
+from neomodel import config
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -106,6 +109,10 @@ DATABASES = {
     }
 }
 
+# Neo4j Configuration (Use your cloud database credentials)
+# NEO4J_DATABASE_URL = os.getenv("NEO4J_DATABASE_URL")
+
+config.DATABASE_URL = os.getenv("NEO4J_DATABASE_URL")
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
