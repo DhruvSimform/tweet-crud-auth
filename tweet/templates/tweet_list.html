@@ -4,20 +4,48 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-6">
-    
 
+    <!-- Create Tweet Button -->
+    <div id="tweetButtonContainer" class="flex justify-center mb-6 transition-all duration-300">
+        <a id="tweetButton" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 shadow-lg" 
+           href="{% url 'tweet_create' %}">
+            + Create a Tweet
+        </a>
+    </div>
 
     <!-- Tweets Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="tweetContainer">
-        {% for tweet in tweets %}
-        <div class="tweet-card max-w-sm bg-white border border-gray-200 rounded-lg shadow-md p-4" data-id="{{ tweet.id }}">
-            {% if tweet.photo %}
-            <img class="w-full h-48 object-cover" src="{{ tweet.photo.url }}" alt="Tweet Image">
-            {% endif %}
-            <h5 class="text-xl font-semibold">{{ tweet.user.username }}</h5>
-            <p class="text-gray-700">{{ tweet.text }}</p>
-        </div>
-        {% endfor %}
+        {% if tweets %}
+            {% for tweet in tweets %}
+            <div class="tweet-card max-w-sm bg-white border border-gray-200 rounded-lg shadow-md p-4" data-id="{{ tweet.id }}">
+                
+                {% if tweet.photo %}
+                <img class="w-full h-48 object-cover" src="{{ tweet.photo.url }}" alt="Tweet Image">
+                {% endif %}
+                
+                <h5 class="text-xl font-semibold">{{ tweet.user.username }}</h5>
+                <p class="text-gray-700">{{ tweet.text|default:"No content available" }}</p>
+
+                <!-- Edit & Delete Buttons -->
+                {% if tweet.user == user %}
+                <div class="flex justify-start space-x-3 mt-3">
+                    <a href="{% url 'tweet_edit' tweet.id %}" 
+                       class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300">
+                        ✏ Edit
+                    </a>
+                    <button onclick="deleteTweet({{ tweet.id }})" 
+                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300">
+                        🗑 Delete
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-span-3 text-center text-gray-600 text-lg mt-6" id="noTweetsMessage">
+                No tweets found. Try searching for something else or post a new tweet!
+            </div>
+        {% endif %}
     </div>
 
     <!-- Loader -->
@@ -29,27 +57,26 @@
 <script>
     let page = 2; // Start from second page
     let isLoading = false;
+
     function getQueryParam(param) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(param) || ''; // Return the parameter value or empty string
     }
+
     async function loadMoreTweets() {
         if (isLoading) return;
         isLoading = true;
         document.getElementById("loading").classList.remove("hidden");
 
         try {
-            // Get the 'q' parameter from the URL
             const query = getQueryParam('q');
-
-            // Fetch tweets with pagination while preserving search query
             const response = await fetch(`?page=${page}&q=${encodeURIComponent(query)}`, {
                 headers: { "X-Requested-With": "XMLHttpRequest" }
             });
             const data = await response.json();
 
             if (data.tweets.length > 0) {
-                data.tweets.forEach(tweet => addTweetToDOM(tweet));
+                data.tweets.forEach(tweet => addTweetToDOM(tweet, "{{ user.username }}"));
                 page++;
             } else {
                 window.removeEventListener("scroll", handleScroll);
@@ -68,19 +95,32 @@
         }
     }
 
-    async function createTweet() {
-        let text = document.getElementById("tweetText").value;
-       
-    }
-
-    function addTweetToDOM(tweet, prepend = false) {
+    function addTweetToDOM(tweet, currentUser, prepend = false) {
+        let editDeleteButtons = "";
+        
+        // Only show edit & delete if the logged-in user owns the tweet
+        if (tweet.username === currentUser) {
+            editDeleteButtons = `
+                <div class="flex justify-start space-x-3 mt-3">
+                    <a href="/tweet/edit/${tweet.id}" 
+                       class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                        ✏ Edit
+                    </a>
+                    <button onclick="deleteTweet(${tweet.id})" 
+                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
+                        🗑 Delete
+                    </button>
+                </div>`;
+        }
+    
         let tweetCard = `
             <div class="tweet-card max-w-sm bg-white border border-gray-200 rounded-lg shadow-md p-4" data-id="${tweet.id}">
                 ${tweet.photo ? `<img class="w-full h-48 object-cover" src="${tweet.photo}" alt="Tweet Image">` : ""}
                 <h5 class="text-xl font-semibold">${tweet.username}</h5>
                 <p class="text-gray-700">${tweet.text}</p>
+                ${editDeleteButtons}
             </div>`;
-
+    
         let container = document.getElementById("tweetContainer");
         if (prepend) {
             container.insertAdjacentHTML("afterbegin", tweetCard);
@@ -88,6 +128,8 @@
             container.insertAdjacentHTML("beforeend", tweetCard);
         }
     }
+    
+    
 
     window.addEventListener("scroll", handleScroll);
 </script>

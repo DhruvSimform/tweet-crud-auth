@@ -25,6 +25,8 @@ from .models import Tweet
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 
+
+
 def tweet_list(request):
     tweets = Tweet.objects.all().order_by('-created_at')  # Order by latest
     query=request.GET.get('q', '')
@@ -61,7 +63,27 @@ def tweet_list(request):
 def my_tweets(request):
     query = request.GET.get('q') or ''
     tweets = (Tweet.objects.filter(user=request.user) & Tweet.objects.filter(text__icontains=query)).order_by('-created_at')
-    return render(request, 'tweet_list.html', {'tweets': tweets,})
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        page_number = request.GET.get('page', 1)
+        paginator = Paginator(tweets, 10)
+
+        try:
+            page = paginator.page(page_number)
+        except:
+            return JsonResponse({'tweets': []})
+        
+        tweets_data = [
+            {
+                "id": tweet.id,
+                "text": tweet.text,
+                "username": tweet.user.username,
+                "photo": tweet.photo.url if tweet.photo else None
+            }
+            for tweet in page.object_list
+        ]
+        return JsonResponse({'tweets': tweets_data})
+    return render(request, "tweet_list.html", {'tweets': tweets[:30]})
 
 @login_required
 def tweet_create(request):
