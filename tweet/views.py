@@ -12,24 +12,47 @@ def index(request):
 
     return render(request,"index.html")
 
+from django.shortcuts import render
+from .models import Tweet
+
+from django.shortcuts import render
+from .models import Tweet
+
+from django.shortcuts import render
+from django.utils.safestring import mark_safe
+import json
+from .models import Tweet
+
 def tweet_list(request):
-    query = request.GET.get('q') or ''
-    suggestions = []
-    
+    query = request.GET.get('q', '')
+
     if query:
         tweets = (Tweet.objects.filter(text__icontains=query) | 
                   Tweet.objects.filter(user__username__icontains=query)).order_by('-created_at')
-        suggestions = tweets.values_list("text", flat=True)  # Extract only text
-        print(suggestions)
     else:
-        tweets = Tweet.objects.all().order_by('-created_at')  # Ensure ordering even for all tweets
+        tweets = Tweet.objects.all().order_by('-created_at')
 
-    return render(request, 'tweet_list.html', {'tweets': tweets, 'suggestions': suggestions})
+    # Convert to JSON-safe format
+    tweet_data = [
+        {
+            'id': tweet.id,
+            'user': tweet.user.username,
+            'text': tweet.text,
+            'photo': tweet.photo.url if tweet.photo else '',
+            'created_at': tweet.created_at.strftime('%Y-%m-%d %H:%M'),
+        }
+        for tweet in tweets
+    ]
+
+    return render(request, 'tweet_list.html', {'tweets_json': mark_safe(json.dumps(tweet_data))})
+
+
+
 
 @login_required
 def my_tweets(request):
     query = request.GET.get('q') or ''
-    tweets = Tweet.objects.filter(user=request.user) & Tweet.objects.filter(text__icontains=query).order_by('-created_at')
+    tweets = (Tweet.objects.filter(user=request.user) & Tweet.objects.filter(text__icontains=query)).order_by('-created_at')
     return render(request, 'tweet_list.html', {'tweets': tweets,})
 
 @login_required
