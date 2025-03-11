@@ -27,9 +27,12 @@ from django.http import JsonResponse
 
 def tweet_list(request):
     tweets = Tweet.objects.all().order_by('-created_at')  # Order by latest
+    query=request.GET.get('q', '')
 
+    tweets = (tweets.filter(text__icontains=query) | tweets.filter(user__username__icontains=query)).order_by('-created_at')
     # Handle AJAX request for pagination
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+
         page_number = request.GET.get('page', 1)
         paginator = Paginator(tweets, 10)  # Show 5 tweets per page
 

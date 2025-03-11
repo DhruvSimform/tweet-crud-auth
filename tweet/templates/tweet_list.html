@@ -29,14 +29,21 @@
 <script>
     let page = 2; // Start from second page
     let isLoading = false;
-
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param) || ''; // Return the parameter value or empty string
+    }
     async function loadMoreTweets() {
         if (isLoading) return;
         isLoading = true;
         document.getElementById("loading").classList.remove("hidden");
 
         try {
-            const response = await fetch(`?page=${page}`, {
+            // Get the 'q' parameter from the URL
+            const query = getQueryParam('q');
+
+            // Fetch tweets with pagination while preserving search query
+            const response = await fetch(`?page=${page}&q=${encodeURIComponent(query)}`, {
                 headers: { "X-Requested-With": "XMLHttpRequest" }
             });
             const data = await response.json();
