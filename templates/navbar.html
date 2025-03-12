@@ -13,7 +13,11 @@
       {% if user.is_authenticated %}
       <button type="button" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown"
         class="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800  text-white px-4 py-2 rounded-lg focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
-        <img class="w-8 h-8 rounded-full" src="https://th.bing.com/th/id/OIP.0IjSh8YAMecKyLNyMRW90gHaHa?rs=1&pid=ImgDetMain" alt="user photo" />
+      {% if profile_img %}
+      <img src="{{ profile_img }}" alt="Profile Picture" width="50">
+      {% else %}
+      <img class="w-8 h-8 rounded-full" src="https://th.bing.com/th/id/OIP.0IjSh8YAMecKyLNyMRW90gHaHa?rs=1&pid=ImgDetMain" alt="user photo" />
+      {% endif %}
         <span class="text-sm font-medium text-gray-900 dark:text-white">{{ user.username }}</span>
         <svg class="w-4 h-4 text-gray-900 dark:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>

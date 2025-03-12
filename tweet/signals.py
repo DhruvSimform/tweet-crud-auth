@@ -10,7 +10,7 @@ def create_user_node(sender, instance, created, **kwargs):
     if created:  # Only create a node if it's a new user
         UserNode(username=instance.username).save()
         # Create a corresponding Profile instance
-        Profile.objects.create(user=instance)
+        Profile.objects.create(user=instance.user)
 
 @receiver(pre_save, sender=User)
 def update_user_node(sender, instance, **kwargs):

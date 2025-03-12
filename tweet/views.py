@@ -164,7 +164,7 @@ from .neo_models import UserNode  # Assuming your Neo4j models are in neo_models
 def profile_view(request, username):
     # Fetch user from SQLite
     user = User.objects.filter(username=username).first()
-    user_profile = Profile.objects.filter(user=user).first()
+    user_profile, created = Profile.objects.get_or_create(user=user)
 
     # Fetch user node from Neo4j
     try:
@@ -202,7 +202,7 @@ def profile_view(request, username):
         profile_form = None
 
     context = {
-        "user": user,
+        "userr": user,
         "user_profile": user_profile,
         "followers_count": followers_count,
         "following_count": following_count,
