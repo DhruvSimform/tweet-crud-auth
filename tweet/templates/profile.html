@@ -11,84 +11,84 @@
         {{ user_profile.user.username }}'s Profile
     </h2>
 
-    <!-- Responsive Grid Layout with Spacing -->
+    <!-- Responsive Grid Layout -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         
         <!-- Left: Profile Details -->
-        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-300 dark:border-gray-700">
-            <div class="flex flex-col items-center space-y-4">
-                <!-- Profile Picture -->
-                {% if user_profile.profile_picture %}
-                    <img src="{{ user_profile.profile_picture.url }}"  
-                         alt="Profile Picture" 
-                         class="w-24 h-24 md:w-32 md:h-32 rounded-full border shadow-md">
-                {% else %}
-                    <img class="w-24 h-24 md:w-32 md:h-32 rounded-full border shadow-md" 
-                         src="https://th.bing.com/th/id/OIP.0IjSh8YAMecKyLNyMRW90gHaHa?rs=1&pid=ImgDetMain" 
-                         alt="Default user photo" />
-                {% endif %}
+        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-300 dark:border-gray-700 flex flex-col items-center">
+            {% if user_profile.profile_picture %}
+            <!-- Profile Picture -->
+            <img src="{{ user_profile.profile_picture.url }}"  
+            alt="Profile Picture" 
+            class="w-24 h-24 md:w-32 md:h-32 rounded-full border shadow-md">
+   {% else %}
+       <img class="w-24 h-24 md:w-32 md:h-32 rounded-full border shadow-md" 
+            src="https://th.bing.com/th/id/OIP.0IjSh8YAMecKyLNyMRW90gHaHa?rs=1&pid=ImgDetMain" 
+            alt="Default user photo" />
+   {% endif %}
 
-                <!-- Following & Followers Count -->
-                <div class="flex justify-center space-x-6">
-                    <div class="text-center">
-                        <p class="text-gray-700 dark:text-gray-300 font-semibold">Following</p>
-                        <p class="text-lg md:text-xl font-bold text-green-600">{{ following_count }}</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-gray-700 dark:text-gray-300 font-semibold">Followers</p>
-                        <p class="text-lg md:text-xl font-bold text-blue-600">{{ followers_count }}</p>
-                    </div>
+            <!-- Following & Followers Count -->
+            <div class="flex justify-center space-x-6 mt-4">
+                <div class="text-center">
+                    <p class="text-gray-700 dark:text-gray-300 font-semibold">Following</p>
+                    <p class="text-lg md:text-xl font-bold text-green-600">{{ following_count }}</p>
                 </div>
-
-                <!-- Bio -->
-                <p class="text-gray-700 dark:text-gray-300 text-center">
-                    <strong>Bio:</strong> {{ user_profile.bio|default:"No bio available" }}
-                </p>
-
-                {% if request.user.is_authenticated and request.user != user_profile.user %}
-                    <!-- Follow/Unfollow Button -->
-                    <form method="POST" action="{% url 'follow_user' user_profile.user.username %}" class="w-full flex justify-center">
-                        {% csrf_token %}
-                        <button type="submit" 
-                                class="px-6 py-2 text-white font-bold rounded-lg shadow-lg transition duration-300
-                                       {% if is_following %} bg-red-500 hover:bg-red-700 {% else %} bg-blue-500 hover:bg-blue-700 {% endif %}">
-                            {% if is_following %} Unfollow {% else %} Follow {% endif %}
-                        </button>
-                    </form>
-                {% endif %}
+                <div class="text-center">
+                    <p class="text-gray-700 dark:text-gray-300 font-semibold">Followers</p>
+                    <p class="text-lg md:text-xl font-bold text-blue-600">{{ followers_count }}</p>
+                </div>
             </div>
+
+            <!-- Bio -->
+            <p class="text-gray-700 dark:text-gray-300 text-center mt-4">
+                <strong>Bio:</strong> {{ user_profile.bio|default:"No bio available" }}
+            </p>
+
+            {% if request.user.is_authenticated and request.user != user_profile.user %}
+                <!-- Follow/Unfollow Button -->
+                <form method="POST" action="{% url 'follow_user' user_profile.user.username %}" class="w-full flex justify-center mt-4">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            class="px-6 py-2 text-white font-bold rounded-lg shadow-lg transition duration-300
+                                   {% if is_following %} bg-red-500 hover:bg-red-700 {% else %} bg-blue-500 hover:bg-blue-700 {% endif %}">
+                        {% if is_following %} Unfollow {% else %} Follow {% endif %}
+                    </button>
+                </form>
+            {% endif %}
         </div>
 
         {% if request.user.is_authenticated and is_owner %}
-        <!-- Center: User Info Form -->
-        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-300 dark:border-gray-700">
-            <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 text-center">User Information</h3>
-            <div class="space-y-2">{{ user_form|crispy }}</div>
-        </div>
+        <!-- Center & Right: Forms -->
+        <form method="POST" enctype="multipart/form-data" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% csrf_token %}
+            <!-- User Info Form -->
+            <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-300 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 text-center">User Information</h3>
+                <div class="space-y-2">{{ user_form|crispy }}</div>
+            </div>
 
-        <!-- Right: Profile Info Form -->
-        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-300 dark:border-gray-700">
-            <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 text-center">Profile Information</h3>
-            <div class="space-y-2">{{ profile_form|crispy }}</div>
+            <!-- Profile Info Form -->
+            <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-300 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 text-center">Profile Information</h3>
+                <div class="space-y-2">{{ profile_form|crispy }}</div>
+                <p id="file-name" class="mt-2 text-gray-600 dark:text-gray-400 text-xs md:text-sm text-center">
+                    {% if user_profile.profile_picture %}
+                        Current Profile Picture: {{ user_profile.profile_picture.name }}
+                    {% else %}
+                        Default profile picture is being used
+                    {% endif %}
+                </p>
+            </div>
 
-            <p id="file-name" class="mt-2 text-gray-600 dark:text-gray-400 text-xs md:text-sm text-center">
-                {% if user_profile.profile_picture %}
-                    Current Profile Picture: {{ user_profile.profile_picture.name }}
-                {% else %}
-                    Default profile picture is being used
-                {% endif %}
-            </p>
-        </div>
+            <!-- Update Profile Button (Full Width on Small Screens) -->
+            <div class="md:col-span-2 flex justify-center mt-4">
+                <button type="submit" 
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition duration-300">
+                    Update Profile
+                </button>
+            </div>
+        </form>
+        {% endif %}
     </div>
-
-    <!-- Update Profile Button (Centrally Positioned) -->
-    <div class="flex justify-center mt-4">
-        <button type="submit" 
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition duration-300">
-            Update Profile
-        </button>
-    </div>
-    </form>
-    {% endif %}
 </div>
 {% endblock %}

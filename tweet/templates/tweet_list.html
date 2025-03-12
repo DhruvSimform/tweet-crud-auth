@@ -4,10 +4,10 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-6">
-
+    
     <!-- Create Tweet Button -->
-    <div id="tweetButtonContainer" class="flex justify-center mb-6 transition-all duration-300">
-        <a id="tweetButton" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 shadow-lg" 
+    <div id="tweetButtonContainer" class="flex justify-center mb-6">
+        <a id="tweetButton" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 shadow-lg" 
            href="{% url 'tweet_create' %}">
             + Create a Tweet
         </a>
@@ -18,25 +18,37 @@
         {% if tweets %}
             {% for tweet in tweets %}
             <div class="tweet-card max-w-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md p-4" data-id="{{ tweet.id }}">
-                
-                {% if tweet.photo %}
-                <img class="w-full h-48 object-cover" src="{{ tweet.photo.url }}" alt="Tweet Image">
-                {% endif %}
-                
-                <h5 class="text-xl font-semibold text-gray-900 dark:text-white">
-                    <a href="#" class="follow-link text-blue-500 hover:underline" data-username="{{ tweet.user.username }}">{{ tweet.user.username }}</a>
-                </h5>
-                <p class="text-gray-700 dark:text-gray-300">{{ tweet.text|default:"No content available" }}</p>
 
+                <!-- Profile Picture & Username -->
+                <div class="flex items-center space-x-4 mb-3">
+                    <a href="{% url 'profile' tweet.user.username %}">
+                        <img class="w-10 h-10 rounded-full border hover:opacity-80 transition-opacity duration-200"
+                             src="{{ tweet.profile_picture|default:'https://th.bing.com/th/id/OIP.0IjSh8YAMecKyLNyMRW90gHaHa?rs=1&pid=ImgDetMain' }}"
+                             alt="{{ tweet.user.username }}">
+                    </a>
+                    <h5 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        <a href="{% url 'profile' tweet.user.username %}" class="hover:underline">
+                            {{ tweet.user.username }}
+                        </a>
+                    </h5>
+                </div>
+            
+                <!-- Tweet Content -->
+                {% if tweet.photo %}
+                <img class="w-full h-48 object-cover rounded-lg" src="{{ tweet.photo.url }}" alt="Tweet Image">
+                {% endif %}
+            
+                <p class="text-gray-700 dark:text-gray-300 mt-2">{{ tweet.text|default:"No content available" }}</p>
+            
                 <!-- Edit & Delete Buttons -->
                 {% if tweet.user == user %}
                 <div class="flex justify-start space-x-3 mt-3">
                     <a href="{% url 'tweet_edit' tweet.id %}" 
-                       class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-700">
+                       class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600">
                         ✏ Edit
                     </a>
                     <a href="{% url 'tweet_delete' tweet.id %}"
-                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 dark:bg-red-500 rounded-md hover:bg-red-700 dark:hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-700">
+                       class="px-4 py-2 text-sm font-medium text-white bg-red-600 dark:bg-red-500 rounded-md hover:bg-red-700 dark:hover:bg-red-600">
                         🗑 Delete
                     </a>
                 </div>
@@ -54,6 +66,7 @@
     <div id="loading" class="text-center text-gray-500 dark:text-gray-400 mt-4 hidden">Loading...</div>
 </div>
 {% endblock content %}
+
 
 
 {% block script %}
@@ -136,18 +149,5 @@
 
     window.addEventListener("scroll", handleScroll);
 </script>
-<script>
-    document.querySelectorAll('.follow-link').forEach(link => {
-        link.addEventListener('click', function(event) {
-            event.preventDefault();
-            let username = this.getAttribute('data-username');
-            if (confirm(`Would you like to follow ${username}?`)) {
-                fetch(`follow/${username}/`, { method: 'GET' })
-                .then(response => response.json())
-                .then(data => alert(data.message))
-                .catch(error => console.error('Error:', error));
-            }
-        });
-    });
-</script>
+
 {% endblock script %}
