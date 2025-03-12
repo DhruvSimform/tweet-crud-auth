@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save,pre_save , post_delete
+from django.db.models.signals import post_save, pre_save , post_delete
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from .neo_models import UserNode  # Import the Neo4j UserNode model
@@ -10,7 +10,7 @@ def create_user_node(sender, instance, created, **kwargs):
     if created:  # Only create a node if it's a new user
         UserNode(username=instance.username).save()
         # Create a corresponding Profile instance
-        Profile.objects.create(user=instance.user)
+        Profile.objects.create(user=instance)
 
 @receiver(pre_save, sender=User)
 def update_user_node(sender, instance, **kwargs):
