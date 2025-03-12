@@ -1,7 +1,7 @@
 from django import forms
-from .models import Tweet
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from .models import Tweet , Profile
+from django.contrib.auth.forms import UserCreationForm , UserChangeForm
+from django.contrib.auth.models import User 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field
 
@@ -31,3 +31,21 @@ class UserRegistrationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')  # Corrected typo
+
+class UserUpdateForm(UserChangeForm):
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'block w-full p-3 border rounded-md bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors'}),
+            'email': forms.EmailInput(attrs={'class': 'block w-full p-3 border rounded-md bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors'}),
+        }
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio', 'profile_picture']
+        widgets = {
+            'bio': forms.Textarea(attrs={'class': 'block w-full p-3 border rounded-md bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors'}),
+            'profile_picture': forms.FileInput(attrs={'class': 'block w-full p-3 border rounded-md bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors'}),
+        }

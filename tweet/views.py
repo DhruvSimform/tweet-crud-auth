@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from .models import Tweet
+from .models import Tweet , Profile
 from .forms import TweetForm , UserRegistrationForm
+from .forms import UserUpdateForm, ProfileUpdateForm
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -23,8 +24,6 @@ from django.shortcuts import render
 from .models import Tweet
 
 from django.shortcuts import render
-from django.utils.safestring import mark_safe
-import json
 from .models import Tweet
 from django.core.paginator import Paginator
 from django.http import JsonResponse
@@ -157,20 +156,78 @@ def register(request):
     return render(request,"registration/register.html", {'form': form})    
 
 
+from django.shortcuts import render, get_object_or_404
+from .models import Profile
+from .neo_models import UserNode  # Assuming your Neo4j models are in neo_models.py
 
 @login_required
+def profile_view(request, username):
+    # Fetch user from SQLite
+    user = User.objects.filter(username=username).first()
+    user_profile = Profile.objects.filter(user=user).first()
+
+    # Fetch user node from Neo4j
+    try:
+        user_node = UserNode.nodes.get(username=username)
+    except UserNode.DoesNotExist:
+        user_node = None
+
+    # Initialize follow-related variables (Keeping your original logic)
+    followers_count = len(user_node.followers.all()) if user_node else 0
+    following_count = len(user_node.following.all()) if user_node else 0
+    is_following = False
+
+    if request.user.is_authenticated:
+        try:
+            current_user_node = UserNode.nodes.get(username=request.user.username)
+            is_following = current_user_node.following.is_connected(user_node) if user_node else False
+        except UserNode.DoesNotExist:
+            is_following = False
+
+    # Handle profile update only if the logged-in user owns the profile
+    if request.user == user:
+        if request.method == "POST":
+            user_form = UserUpdateForm(request.POST, instance=request.user)
+            profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=user_profile)
+
+            if user_form.is_valid() and profile_form.is_valid():
+                user_form.save()
+                profile_form.save()
+                return redirect("profile", username=request.user.username)  # Prevent form resubmission
+        else:
+            user_form = UserUpdateForm(instance=request.user)
+            profile_form = ProfileUpdateForm(instance=user_profile)
+    else:
+        user_form = None
+        profile_form = None
+
+    context = {
+        "user": user,
+        "user_profile": user_profile,
+        "followers_count": followers_count,
+        "following_count": following_count,
+        "is_owner": request.user == user,
+        "is_following": is_following,
+        "user_form": user_form,
+        "profile_form": profile_form,
+    }
+
+    return render(request, "profile.html", context)
+
+from neomodel import DoesNotExist
 def follow_user(request, username):
-    """Allow the logged-in user to follow another user."""
+    """Allow the logged-in user to follow another user and refresh the profile page."""
     try:
         logged_in_user = UserNode.nodes.get(username=request.user.username)
         target_user = UserNode.nodes.get(username=username)
 
-        # Check if already following
-        if target_user not in logged_in_user.follows:
-            logged_in_user.follows.connect(target_user)
-            return JsonResponse({'status': 'success', 'message': f'You are now following {username}.'})
+        # Use 'following' (not 'follows') as defined in the model
+        if not logged_in_user.following.is_connected(target_user):
+            logged_in_user.following.connect(target_user)
         else:
-            return JsonResponse({'status': 'error', 'message': 'You are already following this user.'})
+            logged_in_user.following.disconnect(target_user)  # Unfollow
 
-    except UserNode.DoesNotExist:
-        return JsonResponse({'status': 'error', 'message': 'User not found.'})
+    except DoesNotExist:
+        pass  # Ignore if the user does not exist
+
+    return redirect('profile', username=username)  # Reload the profile page
